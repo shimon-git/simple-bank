@@ -36,4 +36,15 @@ sqlc:
 test:
 	go test -v -cover ./...
 
-.PHONY: postgres rm_postgres createdb dropdb migrateup migratedown sqlc
+server:
+	go run .
+
+.PHONY:
+	server \
+	postgres \
+	rm_postgres \
+	createdb \
+	dropdb \
+	migrateup \
+	migratedown \
+	sqlc
