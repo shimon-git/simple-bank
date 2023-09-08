@@ -15,7 +15,7 @@ import (
  */
 type createAccountRequest struct {
 	Owner    string `json:"owner" binding:"required"`
-	Currency string `json:"currency" binding:"required,oneof=USD EUR ILS"`
+	Currency string `json:"currency" binding:"required,currency"`
 }
 
 // createAccount - API endpoint for creating a new bank account
