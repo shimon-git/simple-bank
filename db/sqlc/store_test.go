@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/shimon-git/simple-bank/db/util"
+	"github.com/shimon-git/simple-bank/util"
 	"github.com/stretchr/testify/require"
 )
 

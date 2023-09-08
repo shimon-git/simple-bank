@@ -6,28 +6,25 @@ import (
 	"os"
 	"testing"
 
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/shimon-git/simple-bank/util"
 )
 
 const (
-	envFile  = "../../env/.db.env"
-	dbDriver = "postgres"
+	confFolder = "../.."
 )
 
 var testQueries *Queries
 var testDB *sql.DB
 
-func loadSecrets() {
-	if err := godotenv.Load(envFile); err != nil {
-		log.Fatalf("Error loading %s: %v", envFile, err)
-	}
-}
-
 func TestMain(m *testing.M) {
-	loadSecrets()
-	var err error
-	testDB, err = sql.Open(dbDriver, os.Getenv("CONNECTION_STRING"))
+	// load the config file from the given folder
+	config, err := util.LoadConfig(confFolder)
+	if err != nil {
+		log.Fatalf("failed to load configurations: %v", err)
+	}
+
+	testDB, err = sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}

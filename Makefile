@@ -1,10 +1,10 @@
-include ./env/.db.env
+include .app.env
 
 postgres:
 	docker run --rm --name postgres -d \
 	-v /Users/shimonyaniv/Desktop/golang/simple_bank/data:/var/lib/postgresql/data \
-	-p $(POSTGRES_PORT):$(POSTGRES_PORT) -e POSTGRES_USER=$(POSTGRES_USER) \
-	-e POSTGRES_PASSWORD=$(POSTGRES_PASSWORD) \
+	-p $(DB_PORT):$(DB_PORT) -e POSTGRES_USER=$(DB_USER) \
+	-e POSTGRES_PASSWORD=$(DB_PASSWORD) \
 	postgres:alpine
 
 rm_postgres:
@@ -13,21 +13,21 @@ rm_postgres:
 
 createdb:
 	docker exec -it postgres createdb \
-	--username=$(POSTGRES_USER) \
-	--owner=$(POSTGRES_USER) \
-	simple_bank
+	--username=$(DB_USER) \
+	--owner=$(DB_USER) \
+	$(DB_NAME)
 
 dropdb:
-	docker exec -it postgres dropdb simple_bank
+	docker exec -it postgres dropdb $(DB_NAME)
 
 migrateup:
 	migrate -path ./db/migration \
-	-database '$(CONNECTION_STRING)' \
+	-database '$(DB_SOURCE)' \
 	-verbose up
 
 migratedown:
 	migrate -path ./db/migration \
-	-database '$(CONNECTION_STRING)' \
+	-database '$(DB_SOURCE)' \
 	-verbose down
 
 sqlc:
@@ -39,6 +39,13 @@ test:
 server:
 	go run .
 
+mock:
+	mockgen \
+	-package mockdb \
+	-destination ./db/mock/store.go \
+	github.com/shimon-git/simple-bank/db/sqlc \
+	Store
+
 .PHONY:
 	server \
 	postgres \
@@ -47,4 +54,5 @@ server:
 	dropdb \
 	migrateup \
 	migratedown \
-	sqlc
+	sqlc \
+	mock

@@ -104,7 +104,7 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Account
+	items := []Account{}
 	for rows.Next() {
 		var i Account
 		if err := rows.Scan(
@@ -124,9 +124,7 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-
 	return items, nil
-	
 }
 
 const updateAccount = `-- name: UpdateAccount :one
