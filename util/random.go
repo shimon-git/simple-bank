@@ -38,7 +38,7 @@ func RandomString(n int) string {
 
 // RandomOwner - generates a random owner name
 func RandomOwner() string {
-	return RandomString(6)
+	return fmt.Sprintf("%s %s", RandomString(6), RandomString(6))
 }
 
 // * RandomMoney - generates a random money amount
@@ -59,4 +59,11 @@ func RandomCurrency() string {
 // RandomEmail - generated random email
 func RandomEmail() string {
 	return fmt.Sprintf("%s@email.com", RandomString(int(RandomInt(4, 8))))
+}
+
+// RandomToken - return random token type
+func RandomTokenType() string {
+	suuportedTokens := []string{"JWT", "PASETO"}
+
+	return suuportedTokens[RandomInt(0, int64(len(suuportedTokens)-1))]
 }

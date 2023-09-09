@@ -2,11 +2,13 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/shimon-git/simple-bank/db/sqlc"
+	"github.com/shimon-git/simple-bank/token"
 )
 
 /*
@@ -32,12 +34,30 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
-	// validating the from account id + currency
-	if !server.validAccount(ctx, req.FromAccountID, req.Currency) {
+	// getting the owner through the user name of the access token
+	authPayload, ok := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if !ok {
+		err := errors.New("failed to retrieve the payload data from the authorization token")
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	// validating the from account id + currency
+	fromAccount, valid := server.validAccount(ctx, req.FromAccountID, req.Currency)
+	if !valid {
+		return
+	}
+
+	// checking if the authenticated account is authorized to make the transfer
+	if fromAccount.Owner != authPayload.Username {
+		err := errors.New("you are not authorized to make the transfer")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	// validating the to account id + currency
-	if !server.validAccount(ctx, req.ToAccountID, req.Currency) {
+	_, valid = server.validAccount(ctx, req.FromAccountID, req.Currency)
+	if !valid {
 		return
 	}
 
@@ -61,7 +81,7 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 }
 
 // validAccount - validating the given account id + currency
-func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency string) bool {
+func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency string) (db.Account, bool) {
 	// get the account by his details
 	account, err := server.store.GetAccount(ctx, accountID)
 	// if an error ocurred while trying to get the account
@@ -69,18 +89,18 @@ func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency s
 		// if the error was ocurred because the account wasn't found - status 400(StatusNotFound)
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return false
+			return account, false
 		}
 		// if an error ocurred and it's not because the account wasn't found - status 500(StatusInternalServerError)
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return false
+		return account, false
 	}
 	// if the account currency is unmatched to the given currency - status 400(StatusBadRequest)
 	if account.Currency != currency {
 		err = fmt.Errorf("account [%d] currency mismatch: given currency is %s but expected currency is %s", accountID, currency, account.Currency)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return false
+		return account, false
 	}
 	// if the account is valid return true
-	return true
+	return account, true
 }

@@ -1,6 +1,8 @@
 package util
 
 import (
+	"time"
+
 	"github.com/spf13/viper"
 )
 
@@ -9,9 +11,12 @@ import (
 * The configurations are read by viper from a config file or env file
  */
 type Config struct {
-	DBDriver      string `mapstructure:"DB_DRIVER"`
-	DBSource      string `mapstructure:"DB_SOURCE"`
-	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
+	DBDriver            string        `mapstructure:"DB_DRIVER"`
+	DBSource            string        `mapstructure:"DB_SOURCE"`
+	ServerAddress       string        `mapstructure:"SERVER_ADDRESS"`
+	TokenSymmetricKey   string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
+	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
+	TokenType           string        `mapstructure:"TOKEN_TYPE"`
 }
 
 // LoadConfig - reads the conf file ot the env file
