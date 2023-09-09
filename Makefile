@@ -3,9 +3,18 @@ include .app.env
 postgres:
 	docker run --rm --name postgres -d \
 	-v /Users/shimonyaniv/Desktop/golang/simple_bank/data:/var/lib/postgresql/data \
-	-p $(DB_PORT):$(DB_PORT) -e POSTGRES_USER=$(DB_USER) \
+	-p $(DB_PORT):$(DB_PORT) \
+	-e POSTGRES_USER=$(DB_USER) \
+	--network $(BANK_NETWORK) \
 	-e POSTGRES_PASSWORD=$(DB_PASSWORD) \
 	postgres:alpine
+
+app:
+	docker run --rm --name app -d \
+	-p 80:8080 \
+	-e  GIN_MODE=release \
+	--network $(BANK_NETWORK) \
+	simplebank:latest
 
 rm_postgres:
 	docker rm postgres -f
