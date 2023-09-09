@@ -30,7 +30,7 @@ func main() {
 	// creating a new server object
 	server, err := api.NewServer(config, store)
 	if err != nil {
-		log.Fatalf("cannot create server: %w", err)
+		log.Fatalf("cannot create server: %v", err)
 	}
 	// starting the server on the given interface and port
 	if err = server.Start(config.ServerAddress); err != nil {

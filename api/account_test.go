@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -47,7 +46,6 @@ func TestGetAccountAPI(t *testing.T) {
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				// check response
-				log.Println(recorder.Body.String())
 				require.Equal(t, http.StatusOK, recorder.Code)
 
 				requiredBodyMatchAccount(t, recorder.Body, account)
