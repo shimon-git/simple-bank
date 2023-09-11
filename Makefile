@@ -55,6 +55,9 @@ mock:
 	github.com/shimon-git/simple-bank/db/sqlc \
 	Store
 
+secrets:
+	aws secretsmanager get-secret-value --secret-id simple_bank --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > .app.env
+
 .PHONY:
 	server \
 	postgres \
